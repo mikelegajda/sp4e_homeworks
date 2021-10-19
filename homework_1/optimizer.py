@@ -2,7 +2,6 @@ from numpy.ma.core import dot
 from scipy.optimize import minimize
 from scipy.sparse.linalg import lgmres
 import numpy as np
-import plot
 
 
 tol = 1.e-10
@@ -23,8 +22,6 @@ if __name__ == '__main__':
     z_step = []
     # applying minimization method
     res = minimize(min_S, (0.,0.), tol=1.e-10)
-    # Plot
-    plot.plot3d(x_step, y_step, z_step, f_to_minimize)
     print (res)
     A = np.array([[8.0, 1.0],[1.0, 3.0]])
     b = np.array([[2.0], [4.0]])
