@@ -1,70 +1,100 @@
+from typing import Callable
 from numpy.ma.core import dot
 from scipy.optimize import minimize
 from scipy.sparse.linalg import lgmres
 import numpy as np
 import matplotlib.pyplot as plt
 
-tol = 1.e-10
+# some global variables to be used
+TOL = 1.e-10
+A = np.array([[8.0, 1.0],[1.0, 3.0]])
+b = np.array([[2.0], [4.0]])
 
-#Defining the function to minimize
-def min_S(x):
+def S(x):
+    """The function to minimize
+
+    Args:
+        x ([type]): [description]
+
+    Returns:
+        [float]: the result
+    """
     x_t = np.transpose(x)
-    A = np.array([[8.0, 1.0],[1.0, 3.0]])
-    b = np.array([[2.0], [4.0]])
     x_tA = (np.dot(x_t, A))
     f = 0.5*(np.dot(x_tA, x)) - np.dot(x_t, b)
     return f
 
-def create_plot():
+def draw_plot(bfgs_solution_history, gmres_solution_history):
+    """Draw the plots given the solution histories
+
+    Args:
+        bfgs_solution_history ([type]): a list of solution from BFGS
+        gmres_solution_history ([type]): a list of solution vector from GMRES
+    """
+    # draw the surface and contours
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
     X, Y = np.mgrid[-3:3:50j, -3:3:50j]
     X_Y = np.stack([X, Y], axis=0).reshape((2,-1)) # (2,-1)
-    Z = min_S(X_Y).diagonal()
+    Z = S(X_Y).diagonal()
     Z = Z.reshape(X.shape)
-    ax.plot_surface(X, Y, Z, cmap="autumn_r", lw=0, rstride=1, cstride=1, alpha=0.5)
-    ax.contour(X, Y, Z, 10, lw=3, colors="k", linestyles="solid")
-    return ax
 
-# create the plot
-ax = create_plot()
+    ax_1 = fig.add_subplot(121, projection="3d")
+    ax_2 = fig.add_subplot(122, projection="3d")
 
-# global variables for drawing
-x_k_prev = np.array([0.0, 0.0])
-y_k_prev = min_S(x_k_prev)[0]
-def plot_callback(xk):
-    """callback function to draw the optimized vector for each iteration
+    ax_1.plot_surface(X, Y, Z, cmap="autumn_r", lw=0, rstride=1, cstride=1, alpha=0.5)
+    ax_1.contour(X, Y, Z, 10, lw=3, colors="k", linestyles="solid")
+    ax_1.set_title("BFGS")
+
+    ax_2.plot_surface(X, Y, Z, cmap="autumn_r", lw=0, rstride=1, cstride=1, alpha=0.5)
+    ax_2.contour(X, Y, Z, 10, lw=3, colors="k", linestyles="solid")
+    ax_2.set_title("GMRES")
+
+    # draw solution trajectory
+    ax_1.plot([item[0] for item in bfgs_solution_history],[item[1] for item in bfgs_solution_history],[S(item)[0] for item in bfgs_solution_history], 'bo', linewidth=1, ls ='--' )
+    ax_2.plot([item[0] for item in gmres_solution_history],[item[1] for item in gmres_solution_history],[S(item)[0] for item in gmres_solution_history], 'bo', linewidth=1, ls ='--' )
+
+    plt.show()
+    
+
+solution_history = [] # global variable to store the solution trajectory
+def trajectory_save_callback(xk):
+    """callback function to save the optimized vector for each iteration
 
     Args:
         xk ([type]): xk is the current parameter vector
     """
-    print(xk)
-    global x_k_prev
-    global y_k_prev
-    ax.plot([x_k_prev[0],xk[0]],[x_k_prev[1],xk[1]],[y_k_prev, min_S(xk)[0]], 'bo', linewidth=1, ls ='--' )
-    x_k_prev = xk
-    y_k_prev = min_S(xk)[0]
+    solution_history.append(xk)
 
-# applying minimization method
-res = minimize(min_S, (0.,0.), method="BFGS", tol=tol, callback=plot_callback)
-print(res)
-plt.show()
+def minimizer(func: Callable):
+    """A function which takes S(x) as a input argument in form of a python functor and returns the minimizer
 
+    Args:
+        func (Callable): The S(x) function
 
-# global variables for drawing
-x_k_prev = np.array([0.0, 0.0])
-y_k_prev = min_S(x_k_prev)[0]
-# recreate plot
-ax = create_plot() # TODO: maybe should draw a two plot in one figure, and the global variable seems to mess up the second drawing
-A = np.array([[8.0, 1.0],[1.0, 3.0]])
-b = np.array([[2.0], [4.0]])
-x, exitCode = lgmres(A, b,x0=x_k_prev,tol=tol, callback=plot_callback)
-print(x)
-plt.show()
+    Returns:
+        two minimizers from the respective algorithm
+    """
+    ## routine: BFGS
+    # applying minimization method
+    initial_solution = np.array([0.0,0.0])
+    solution_history.append(initial_solution)
+    res = minimize(S, initial_solution, method="BFGS", tol=TOL, callback=trajectory_save_callback)
+    solution_history_bfgs = solution_history.copy()
+    solution_history.clear()
+    sol_bfgs = res.x
+    print("The result of BFGS is as follows: \n", sol_bfgs)
 
 
-x = np.array([0.08695651, 1.30434782])
-x_t = np.transpose(x)
-x_tA = (np.dot(x_t, A))
-f = 0.5*(np.dot(x_tA, x)) - np.dot(x_t, b)
-print(f)
+    ## routine: lgmres
+    solution_history.append(initial_solution)
+    sol_gmres, exitCode = lgmres(A, b, x0=initial_solution,tol=TOL, callback=trajectory_save_callback)
+    solution_history_gmres = solution_history.copy()
+    print("The result of GMRES is as follows: \n", sol_gmres)
+
+    draw_plot(solution_history_bfgs, solution_history_gmres)
+    return sol_bfgs, sol_gmres
+
+if __name__ == "__main__":
+    minimizer(S)
+    print("Done")
+
