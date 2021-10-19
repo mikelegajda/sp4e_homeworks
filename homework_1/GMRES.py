@@ -31,7 +31,7 @@ def gmres(A: np.ndarray, b: np.ndarray, max_iterations: int, threshold: float, c
     # x = np.random.rand(m,1)
     x = np.zeros((m,))
 
-    r = b - mat_vec_product(A, b)
+    r = b - mat_vec_product(A, x)
     b_norm = vector_norm(b)
     error = vector_norm(r) / b_norm
 
