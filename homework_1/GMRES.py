@@ -171,6 +171,3 @@ if __name__ == "__main__":
 
     x_all = GMRes_ref(A_test, b_test, None, 100)
     print("Solution from online:", x_all[-1])
-
-
-
