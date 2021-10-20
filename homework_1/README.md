@@ -1,22 +1,25 @@
-## Homework 1: Generalized minimal residual method
+# Homework 1: Generalized minimal residual method
 
-# Instructions to launch the program
+## Instructions to launch the program
 
 To launch the program, open a terminal window in the file's location.
 
-To run the solution to the first part of the exercize type:
-
+### Ex 1
+To run the solution to the first part of the exercise type:
+```
 python3 optimizer.py 
-
+```
 This will output the optimal solution and the required plots.
 
-To change the optimization method you can additionally type:
+### Ex 2
+1. To run the GMRES of our implementation:
+    ```
+    python3 GMRES.py --A 8 1 1 3 --b 2 4 --method GMRES --draw
+    ```
 
-python3 optimizer.py -m BFGS
-python3 optimizer.py -m GMRES
-
-To run the solution to the second part of the exercize type:
-
-python3 GMRES.py 
+2. To run the LGMRES from Scipy:
+    ```
+    python3 GMRES.py --A 8 1 1 3 --b 2 4 --method ScipyLGMRES --draw
+    ```
 
 
