@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 
 import numpy as np
-from scipy.sparse.linalg import gmres as gmres_benchmark
+from scipy.sparse.linalg import lgmres as gmres_benchmark
+import matplotlib.pyplot as plt
+from optimizer import S
+
+#Global variables
+TOL = 1.e-10
 
 def vector_norm(v):
     return np.sqrt(np.einsum('k,k->', v, v))
@@ -21,6 +26,15 @@ def test_einsum():
     assert np.array_equal(np.dot(m, v), mat_vec_product(m, v))
     assert np.dot(v, u) == vector_dot_product(v, u)
     print("test eimsum: pass")
+
+solution_history = [] # global variable to store the solution trajectory
+def trajectory_save_callback(xk):
+    """callback function to save the optimized vector for each iteration
+
+    Args:
+        xk ([type]): xk is the current parameter vector
+    """
+    solution_history.append(xk)
 
 def gmres(A: np.ndarray, b: np.ndarray, max_iterations: int, threshold: float, callback=None):
     # Ref: https://en.wikipedia.org/wiki/Generalized_minimal_residual_method#Solving_the_least_squares_problem
@@ -68,7 +82,7 @@ def gmres(A: np.ndarray, b: np.ndarray, max_iterations: int, threshold: float, c
         error_list.append(error[0])
 
         # compute the current solution
-        y_k,_,_,_ = np.linalg.lstsq(H[0:k+1, 0:k+1], beta[0:k+1])
+        y_k,_,_,_ = np.linalg.lstsq(H[0:k+1, 0:k+1], beta[0:k+1], rcond=None)
         y_k = y_k.reshape(y_k.shape[0],)
         x_k = x + mat_vec_product(Q[:, 0:k+1], y_k)
         if callback is not None:
@@ -78,7 +92,7 @@ def gmres(A: np.ndarray, b: np.ndarray, max_iterations: int, threshold: float, c
             break
 
     # calculate the result
-    y,_,_,_ = np.linalg.lstsq(H[0:k+1, 0:k+1], beta[0:k+1])
+    y,_,_,_ = np.linalg.lstsq(H[0:k+1, 0:k+1], beta[0:k+1], rcond=None)
     y = y.reshape(y.shape[0],)
     x = x + mat_vec_product(Q[:, 0:k+1], y)
 
@@ -119,8 +133,30 @@ def update_rotation(v1, v2):
     sn = v2 / t
     return cs, sn
 
+def draw_single_plot(solution_history, title_1):
+    """Draw the plots given the solution histories
 
+    Args:
+        bfgs_solution_history ([type]): a list of solution from BFGS
+        gmres_solution_history ([type]): a list of solution vector from GMRES
+    """
+    # draw the surface and contours
+    fig = plt.figure()
+    X, Y = np.mgrid[-3:3:50j, -3:3:50j]
+    X_Y = np.stack([X, Y], axis=0).reshape((2,-1)) # (2,-1)
+    Z = S(X_Y).diagonal()
+    Z = Z.reshape(X.shape)
 
+    ax_1 = fig.add_subplot(111, projection="3d")
+
+    ax_1.plot_surface(X, Y, Z, cmap="autumn_r", rstride=1, cstride=1, alpha=0.5)
+    ax_1.contour(X, Y, Z, 10, colors="k", linestyles="solid")
+    ax_1.set_title(title_1)
+    # draw solution trajectory
+    ax_1.plot([item[0] for item in solution_history],[item[1] for item in solution_history],[S(item)[0] for item in solution_history], 'bo', linewidth=1, ls ='--' )
+
+    plt.show()
+    
 
 if __name__ == "__main__":
     # test einsum implementation of matrix operation
@@ -131,9 +167,19 @@ if __name__ == "__main__":
     # A_test = np.array([[3,2,-1],[2,-2,4],[-1,0.5,-1]])
     # b_test = np.array([1, -2, 0])
     # benchmark result form scipy
-    x_test, exitCode = gmres_benchmark(A_test, b_test)
+    initial_solution = np.array([0.0,0.0])
+    solution_history.append(initial_solution)
+    x_test, exitCode = gmres_benchmark(A_test, b_test, callback=trajectory_save_callback, atol=TOL)
+    solution_history_benchmark = solution_history.copy()
+    solution_history.clear()
     print("Benchmark exitCode: ", exitCode)
     print("Benchmark result: ", x_test)
 
-    x, error_list = gmres(A_test, b_test, 5000, 1e-10)
-    print("Our result:", x)
+    #x, error_list = gmres(A_test, b_test, 5000, 1e-10)
+    #print("Our result:", x)
+
+    solution_history.append(initial_solution)
+    sol_gmres, err_list = gmres(A_test, b_test, 5000, 1e-10, callback=trajectory_save_callback)
+    solution_history_gmres = solution_history.copy()
+
+    draw_single_plot(solution_history_gmres, "GMRES")

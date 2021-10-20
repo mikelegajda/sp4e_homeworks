@@ -24,7 +24,7 @@ def S(x):
     f = 0.5*(np.dot(x_tA, x)) - np.dot(x_t, b)
     return f
 
-def draw_plot(bfgs_solution_history, gmres_solution_history):
+def draw_double_plot(bfgs_solution_history, gmres_solution_history, title_1, title_2):
     """Draw the plots given the solution histories
 
     Args:
@@ -41,13 +41,13 @@ def draw_plot(bfgs_solution_history, gmres_solution_history):
     ax_1 = fig.add_subplot(121, projection="3d")
     ax_2 = fig.add_subplot(122, projection="3d")
 
-    ax_1.plot_surface(X, Y, Z, cmap="autumn_r", lw=0, rstride=1, cstride=1, alpha=0.5)
+    ax_1.plot_surface(X, Y, Z, cmap="autumn_r", rstride=1, cstride=1, alpha=0.5)
     ax_1.contour(X, Y, Z, 10, lw=3, colors="k", linestyles="solid")
-    ax_1.set_title("BFGS")
+    ax_1.set_title(title_1)
 
-    ax_2.plot_surface(X, Y, Z, cmap="autumn_r", lw=0, rstride=1, cstride=1, alpha=0.5)
+    ax_2.plot_surface(X, Y, Z, cmap="autumn_r", rstride=1, cstride=1, alpha=0.5)
     ax_2.contour(X, Y, Z, 10, lw=3, colors="k", linestyles="solid")
-    ax_2.set_title("GMRES")
+    ax_2.set_title(title_2)
 
     # draw solution trajectory
     ax_1.plot([item[0] for item in bfgs_solution_history],[item[1] for item in bfgs_solution_history],[S(item)[0] for item in bfgs_solution_history], 'bo', linewidth=1, ls ='--' )
@@ -91,7 +91,7 @@ def minimizer(func: Callable):
     solution_history_gmres = solution_history.copy()
     print("The result of GMRES is as follows: \n", sol_gmres)
 
-    draw_plot(solution_history_bfgs, solution_history_gmres)
+    draw_double_plot(solution_history_bfgs, solution_history_gmres, "BFGS", "GMRES")
     return sol_bfgs, sol_gmres
 
 if __name__ == "__main__":
