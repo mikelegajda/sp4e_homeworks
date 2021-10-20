@@ -1,5 +1,13 @@
 # Homework 1: Generalized minimal residual method
 
+## Tested Dependencies
+Python 3.8.3
+
+### Packages
+1. numpy==1.20.3
+2. scipy==1.6.3
+3. matplotlib==3.4.2
+
 ## Instructions to launch the program
 
 To launch the program, open a terminal window in the file's location.
