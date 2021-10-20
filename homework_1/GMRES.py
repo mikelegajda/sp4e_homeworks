@@ -67,12 +67,19 @@ def gmres(A: np.ndarray, b: np.ndarray, max_iterations: int, threshold: float, c
         # save the error
         error_list.append(error[0])
 
+        # compute the current solution
+        y_k,_,_,_ = np.linalg.lstsq(H[0:k+1, 0:k+1], beta[0:k+1])
+        y_k = y_k.reshape(y_k.shape[0],)
+        x_k = x + mat_vec_product(Q[:, 0:k+1], y_k)
+        if callback is not None:
+            callback(x_k)
+
         if error <= threshold:
             break
 
     # calculate the result
     y,_,_,_ = np.linalg.lstsq(H[0:k+1, 0:k+1], beta[0:k+1])
-    y = y.reshape(m,)
+    y = y.reshape(y.shape[0],)
     x = x + mat_vec_product(Q[:, 0:k+1], y)
 
     return x, error_list
@@ -113,45 +120,6 @@ def update_rotation(v1, v2):
     return cs, sn
 
 
-def GMRes_ref(A, b, e, nmax_iter, restart=None):
-    # Ref: https://stackoverflow.com/questions/37962271/whats-wrong-with-my-gmres-implementation
-    
-    m, n = A.shape
-    assert m == n, "A should be a square matrix"
-    
-    # give initial x
-    x0 = np.zeros((m,))
-
-    r = b - np.asarray(np.dot(A, x0)).reshape(-1)
-
-    x = []
-    q = [0] * (nmax_iter)
-
-    x.append(r)
-
-    q[0] = r / np.linalg.norm(r)
-
-    h = np.zeros((nmax_iter + 1, nmax_iter))
-
-    for k in range(nmax_iter):
-        y = np.asarray(np.dot(A, q[k])).reshape(-1)
-
-        for j in range(k):
-            h[j, k] = np.dot(q[j], y)
-            y = y - h[j, k] * q[j]
-        h[k + 1, k] = np.linalg.norm(y)
-        if (h[k + 1, k] != 0 and k != nmax_iter - 1):
-            q[k + 1] = y / h[k + 1, k]
-
-        b = np.zeros(nmax_iter + 1)
-        b[0] = np.linalg.norm(r)
-
-        result = np.linalg.lstsq(h, b)[0]
-
-        x.append(np.dot(np.asarray(q).transpose(), result) + x0)
-
-    return x
-
 
 
 if __name__ == "__main__":
@@ -160,14 +128,12 @@ if __name__ == "__main__":
 
     A_test = np.array([[8,1],[1,3]])
     b_test = np.array([2,4])
+    # A_test = np.array([[3,2,-1],[2,-2,4],[-1,0.5,-1]])
+    # b_test = np.array([1, -2, 0])
     # benchmark result form scipy
     x_test, exitCode = gmres_benchmark(A_test, b_test)
     print("Benchmark exitCode: ", exitCode)
     print("Benchmark result: ", x_test)
 
-    x, error_list = gmres(A_test, b_test, 5000, 1e-05)
+    x, error_list = gmres(A_test, b_test, 5000, 1e-10)
     print("Our result:", x)
-
-
-    x_all = GMRes_ref(A_test, b_test, None, 100)
-    print("Solution from online:", x_all[-1])
