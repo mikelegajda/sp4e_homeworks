@@ -159,27 +159,48 @@ def draw_single_plot(solution_history, title_1):
     
 
 if __name__ == "__main__":
-    # test einsum implementation of matrix operation
-    test_einsum()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--draw', action='store_true', 
+                        help='set the flag to draw the plot')
+    parser.add_argument('--method', type=str, required=True,
+                    help='choose method between GMRES and ScipyLGMRES')
+    parser.add_argument('--A', type=float, required=True, nargs='+',
+                        help='input matrix A in a flaten vector format')
+    parser.add_argument('--b', type=float, required=True, nargs='+',
+                        help='input vector b')
+    
+    args = parser.parse_args()
+    A_test = np.array(args.A, dtype=np.float32)
+    dim = np.ceil(np.sqrt(A_test.shape[0])).astype(int)
+    A_test = A_test.reshape((dim, dim))
+    b_test = np.array(args.b, dtype=np.float32)
+    draw = args.draw
+    method = args.method
 
-    A_test = np.array([[8,1],[1,3]])
-    b_test = np.array([2,4])
+    print("Input A:", A_test)
+    print("Input b:", b_test)
+
+    # test einsum implementation of matrix operation
+    # test_einsum()
+
+    # A_test = np.array([[8,1],[1,3]])
+    # b_test = np.array([2,4])
     # A_test = np.array([[3,2,-1],[2,-2,4],[-1,0.5,-1]])
     # b_test = np.array([1, -2, 0])
     # benchmark result form scipy
     initial_solution = np.array([0.0,0.0])
     solution_history.append(initial_solution)
-    x_test, exitCode = gmres_benchmark(A_test, b_test, callback=trajectory_save_callback, atol=TOL)
-    solution_history_benchmark = solution_history.copy()
-    solution_history.clear()
-    print("Benchmark exitCode: ", exitCode)
-    print("Benchmark result: ", x_test)
+    if method == "ScipyLGMRES":
+        x_test, exitCode = gmres_benchmark(A_test, b_test, callback=trajectory_save_callback, atol=TOL)
+        print("ScipyLGMRES exitCode: ", exitCode)
+        print("ScipyLGMRES result: ", x_test)
+    elif method == "GMRES":
+        sol_gmres, err_list = gmres(A_test, b_test, 5000, TOL, callback=trajectory_save_callback)
+        print("GMRES result: ", sol_gmres)
+    else:
+        print("Unknown method specified, please choose between ScipyLGMRES and GMRES")
+        exit(-1)
 
-    #x, error_list = gmres(A_test, b_test, 5000, 1e-10)
-    #print("Our result:", x)
-
-    solution_history.append(initial_solution)
-    sol_gmres, err_list = gmres(A_test, b_test, 5000, 1e-10, callback=trajectory_save_callback)
-    solution_history_gmres = solution_history.copy()
-
-    draw_single_plot(solution_history_gmres, "GMRES")
+    if draw:
+        draw_single_plot(solution_history, method)
