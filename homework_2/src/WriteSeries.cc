@@ -1,0 +1,3 @@
+class WriteSeries : public DumperSeries {
+
+}
