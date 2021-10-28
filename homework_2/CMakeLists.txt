@@ -1,8 +1,8 @@
-add_executable(compute_series
+cmake_minimum_required(VERSION 2.6)
+project(series)
+
+add_executable(main
   main.cc
-  series.cc
-  compute_pi.cc
-  compute_arithmetic.cc
-  print_series.cc
-  write_series.cc
 )
+
+set (CMAKE_CXX_STANDARD 17)
