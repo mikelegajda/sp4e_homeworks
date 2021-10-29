@@ -1,8 +1,5 @@
-add_executable(compute_series
+add_executable(main
   main.cc
-  series.cc
-  compute_pi.cc
-  compute_arithmetic.cc
-  print_series.cc
-  write_series.cc
+  Series.cc
+  ComputeArithmetic.cc
 )

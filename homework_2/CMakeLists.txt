@@ -3,8 +3,4 @@ project(series)
 
 add_subdirectory(src)
 
-add_executable(main
-  main.cc
-)
-
 set (CMAKE_CXX_STANDARD 17)
