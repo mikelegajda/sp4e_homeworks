@@ -9,5 +9,6 @@ class ComputeArithmetic: public Series{
     virtual ~ComputeArithmetic();
     double computeTerm(unsigned int k) override;
     double compute(unsigned int N) override;
+    double getAnalyticPrediction() override;
 };
 #endif

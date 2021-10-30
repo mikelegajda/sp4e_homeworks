@@ -1,4 +1,5 @@
 #include "Series.hh"
+#include <cmath>
 
 Series::Series(/* args */)
 {
@@ -26,4 +27,8 @@ double Series::compute(unsigned int N){
     }
 
     return this->currentValue;
+}
+
+double Series::getAnalyticPrediction(){
+    return nan("");
 };

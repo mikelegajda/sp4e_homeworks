@@ -1,2 +1,6 @@
 build/
 .vscode/
+.DS_Store
+homework_2/.DS_Store
+homework_2/src/main
+homework_2/src/main.dSYM/

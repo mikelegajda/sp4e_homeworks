@@ -14,6 +14,7 @@ public:
     virtual double compute(unsigned int N) = 0;
     virtual void addTerm();
     virtual double computeTerm(unsigned int k) = 0; 
+    virtual double getAnalyticPrediction () = 0;
 };
 #endif
 

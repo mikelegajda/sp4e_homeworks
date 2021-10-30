@@ -10,7 +10,7 @@ public:
     virtual ~ComputePi();
     double computeTerm(unsigned int k) override;
     double compute(unsigned int N) override;
-    double getAnalyticPrediction();
+    double getAnalyticPrediction() override;
 
 };
 
