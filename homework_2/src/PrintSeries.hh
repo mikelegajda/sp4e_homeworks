@@ -9,7 +9,7 @@ class PrintSeries : public DumperSeries {
         virtual ~PrintSeries();
 
         void dump(std::ostream &os) override;
-        void setPrecision(int precision) override;
+        void setPrecision(unsigned int precision) override;
 
     private:
         int freq, maxiter;

@@ -3,4 +3,7 @@ add_executable(main
   Series.cc
   ComputeArithmetic.cc
   ComputePi.cc
+  DumperSeries.cc
+  PrintSeries.cc
+  WriteSeries.cc
 )

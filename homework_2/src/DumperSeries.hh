@@ -12,7 +12,7 @@ class DumperSeries {
     public:
 
         virtual void dump(std::ostream &os) = 0;
-        virtual void setPrecision(int precision) = 0;
+        virtual void setPrecision(unsigned int precision) = 0;
 
     protected:
         Series &series;

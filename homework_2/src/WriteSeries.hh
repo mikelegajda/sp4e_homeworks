@@ -13,7 +13,7 @@ class WriteSeries : public DumperSeries {
         void setSeparator(std::string separator);
         void setExtension();
         void dump(std::ostream &os) override;
-        void setPrecision(int precision) override;
+        void setPrecision(unsigned int precision) override;
     
     private:
         int maxiter, frequency, precision;

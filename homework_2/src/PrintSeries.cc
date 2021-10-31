@@ -8,9 +8,9 @@ PrintSeries::PrintSeries(Series &s, int m, int f) : DumperSeries(s), maxiter(m),
 // Destructor definition
 PrintSeries::~PrintSeries() = default;
 
-// Set precision if valid value specified by user
-void PrintSeries::setPrecision(int p) {
-    this->precision = abs(p);
+// Set precision
+void PrintSeries::setPrecision(unsigned int prec) {
+    this->precision = prec;
 }
 
 void PrintSeries::dump(std::ostream &os) {
@@ -24,8 +24,7 @@ void PrintSeries::dump(std::ostream &os) {
             << std::setprecision(this->precision)
             << init << "\t";
 
-	// If analytical prediction exists, 
-	// print error to the ostream
+	// Print analytical prediction exists
         if (!std::isnan(pred)) {
             os << "\t" << pred-init;
         }

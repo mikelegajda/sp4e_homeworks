@@ -6,8 +6,8 @@ WriteSeries::WriteSeries(Series &series, int miter, int freq):
 
 WriteSeries::~WriteSeries() = default;
 
-void WriteSeries::setPrecision(int prec) {
-    this->precision = abs(prec); 
+void WriteSeries::setPrecision(unsigned int prec) {
+    this->precision = prec; 
 }
 
 void WriteSeries::setSeparator(std::string sep) {
