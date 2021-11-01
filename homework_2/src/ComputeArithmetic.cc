@@ -21,3 +21,7 @@ double ComputeArithmetic::computeTerm(unsigned int k){
 double ComputeArithmetic::compute(unsigned int N){
     return Series::compute(N);
 }
+
+double ComputeArithmetic::getAnalyticPrediction(){
+    return (1.0 + this->currentTerm) * this->currentTerm / 2.0;
+}
