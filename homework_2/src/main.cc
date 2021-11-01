@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <stdexcept>
 #include <sstream>
+#include "dumper__series.hh"
 
 int main(int argc, char ** argv){
 
@@ -45,7 +46,8 @@ int main(int argc, char ** argv){
     DumperSeries *dumperPtr = NULL;
     if (outputType == "printToScreen"){
         dumperPtr = new PrintSeries(*ptr, N, 1);
-        dumperPtr->dump(std::cout);
+        PrintSeries *printerPtr = static_cast<PrintSeries *>(dumperPtr);
+        printerPtr->dump();
     }else if (outputType == "saveToFile"){
         std::string seperator;
         if (fileType.empty() || fileType == "tsv"){
@@ -65,7 +67,8 @@ int main(int argc, char ** argv){
         std::ofstream resultFile;
         resultFile.open("result." + fileType);
         writerPtr->setSeparator(seperator);
-        writerPtr->dump(resultFile);
+        // writerPtr->dump(resultFile);
+        resultFile << *writerPtr; // using defined operator
     }
     else{
         std::cerr << "Unkown output type" << std::endl;
