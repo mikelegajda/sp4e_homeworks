@@ -16,10 +16,11 @@ void PrintSeries::setPrecision(unsigned int prec) {
 void PrintSeries::dump(std::ostream &os) {
     
     double init;
-    double pred = this->series.getAnalyticPrediction();
+    double pred;
 
     for (int i = 1; i <= this->maxiter; i += this->freq) {
         init = this->series.compute(i);
+        pred = this->series.getAnalyticPrediction();
         os  << i << "\t"
             << std::setprecision(this->precision)
             << init << "\t";

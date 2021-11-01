@@ -1,5 +1,6 @@
 #include "WriteSeries.hh"
 #include <cmath>
+#include <iomanip>
 
 WriteSeries::WriteSeries(Series &series, int miter, int freq):
     DumperSeries(series), maxiter(miter), frequency(freq), separator("\t"), precision(4), extension(".txt") {}
@@ -33,8 +34,7 @@ void WriteSeries::dump(std::ostream &os) {
     // Compute series and print
     for (int i = 1; i < this->maxiter; i += this->frequency) {
         Sn = this->series.compute(i);
-        os << i << this->separator 
-            << this->precision 
+        os << i << this->separator << std::setprecision(this->precision)
             << Sn;
 
 	// Print analytical prediction
