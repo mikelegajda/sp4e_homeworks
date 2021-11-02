@@ -2,7 +2,6 @@
 
 ## Tested Dependencies
 1. Python v.3.8.3
-2. C++ v.12.0.5
 
 ### Python packages
 1. matplotlib v.3.4.2
@@ -18,19 +17,18 @@ To compile the program perform in order the following steps:
 To run the program type `./main` followed by the additional parameters in the following order:
 1. Input series type.  `arithmetic` or `pi` or `integral`.
 2. Specify number of maximum iterations allowed.
+3. For `arithmetic` or `pi` series, you can print to screen or save to file by choosing between: `printToScreen` or `saveAllToFile`. If you are calculating the integral, you have to specify `printOnlyResult` in order to visualize the final result.
+4. For `arithmetic` or `pi` series, if you choose `saveAllToFile`, define the file type to be one of the following: `cvs`, `psv`, `txt`. If you choose `printToScreen` you can proceed.\
+In case you are calculating the integral, type `_`, then choose one of the possible functions (`cubic`, `cos`, or `sin`). Afterwards, you just need to specify the value of `a` and the value of `b`, separated as usual by a blank space.
 
-3. For `arithmetic` or `pi` series, you can print to screen or save to file by choosing between: `printToScreen` or `saveToFile`. If you are calculating the integral just type `*`
-4. For `arithmetic` or `pi` series, define the file type to be one of the following: `cvs`, `psv`, `txt`.  If you are calculating the integral just type `*`.
-5. Only required if you are calculating the integral. You first specify the value of `a` and then the value of `b`.
+Example 1: `./main pi 100 saveAllToFile csv` will calculate the pi series with maximum 100 iteration and will save the result in a csv file.
 
-Example 1: `./main pi 100 saveToFile csv` will calculate the pi series with maximum 100 iteration and will save the result in a csv file.
-
-Example 2: `./main integral 100 * * 0 1`
+Example 2: `./main integral 100 printOnlyResult _ cubic 0 1` will calculate the integral from 0 to 1 of the cubic function in 100 iteration and then will print the final result to the terminal.
 
 ## Answers and comments
 
 ### Ex 2.1
-We decided to divide the work by separating the Series classes from the Dumper classes. We developed the two parts and then worked on the following tasks.
+We decided to divide the work by separating the Series classes from the Dumper classes. We decided to first design the header files of the respective parts so that each one of us could be able to work independently without worrying about the exact implementations of the other one's cc files.
 
 ### Ex. 5
 1. Denoting with $n$ the number of terms on the sum, the overall complexity of the first and simpler solution ends up to be $n^2$.
@@ -39,6 +37,6 @@ We decided to divide the work by separating the Series classes from the Dumper c
 
 ### Ex. 6.4
 Yes, we get the value expected.
-1. For $\int_{0}^{1}x^3 dx$ we obtained the value expected after *number* iterations
-2. For $\int_{0}^{\pi}cos(x) dx$ we obtained the value expected after *number* iterations
-3. For $\int_{0}^{\pi/2}sin(x) dx$ we obtained the value expected after *number* iterations
+1. For $\int_{0}^{1}x^3 dx$ we obtained the value expected after *112* iterations
+2. For $\int_{0}^{\pi}cos(x) dx$ we obtained the value expected after *630* iterations
+3. For $\int_{0}^{\pi/2}sin(x) dx$ we obtained the value expected after *160* iterations
