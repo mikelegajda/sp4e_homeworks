@@ -1,4 +1,4 @@
-# Homework 1: Generalized minimal residual method
+# Homework 2: C++ Classes
 
 ## Tested Dependencies
 1. Python v.3.8.3
