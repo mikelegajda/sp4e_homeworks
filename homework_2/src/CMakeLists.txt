@@ -6,4 +6,5 @@ add_executable(main
   DumperSeries.cc
   PrintSeries.cc
   WriteSeries.cc
+  RiemannIntegral.cc
 )
