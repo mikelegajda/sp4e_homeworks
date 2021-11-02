@@ -32,7 +32,7 @@ void WriteSeries::dump(std::ostream &os) {
     double Sn;
 
     // Compute series and print
-    for (int i = 1; i < this->maxiter; i += this->frequency) {
+    for (int i = 1; i <= this->maxiter; i += this->frequency) {
         Sn = this->series.compute(i);
         os << i << this->separator << std::setprecision(this->precision)
             << Sn;
