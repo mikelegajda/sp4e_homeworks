@@ -1,44 +1,49 @@
 #include "RiemannIntegral.hh"
 #include <cmath>
 
-RiemannIntegral::RiemannIntegral(int init, int fin, int maxi, std::string f_type) : initial(init), final(fin), maxiter(maxi), function_type(f_type){}
+RiemannIntegral::RiemannIntegral(double init, double fin, std::string f_type) : initial(init), final(fin), function_type(f_type){}
 
 RiemannIntegral::~RiemannIntegral() {};
 
-double f_cubic (double x){
+double RiemannIntegral::f_cubic (double x){
     return x*x*x;
 }
 
-double f_cos (double x){
+double RiemannIntegral::f_cos (double x){
     return cos(x);
 }
 
-double f_sin (double x){
+double RiemannIntegral::f_sin (double x){
     return sin(x);
 }
 
-double delta(int initial, int final, int maxiter){
-    return (final-initial)/maxiter;
+double RiemannIntegral::delta(double initial, double final, unsigned int maxiter){
+    return (final-initial) * 1.0 /maxiter;
 }
 
-double computeCurrentX (int index, int initial, double deltaValue){
+double RiemannIntegral::computeCurrentX (unsigned int index, double initial, double deltaValue){
     return initial + index*deltaValue;
 }
 
-double RiemannIntegral::computeTerm(unsigned int x){
+double RiemannIntegral::computeTerm(unsigned int k){
     if (function_type == "cubic"){
-        double first = f_cubic(x);
-        double second = delta(initial, final, maxiter);
-        return first*second;
-    } else if (function_type == "cos"){
-        double first = f_cos(x);
-        double second = delta(initial, final, maxiter);
-        return first*second;
+        return f_cubic(computeCurrentX(k, this->initial, this->deltaX)) * deltaX;
+    } 
+    else if (function_type == "cos"){
+        return f_cos(computeCurrentX(k, this->initial, this->deltaX)) * deltaX;
     }else {
-        double first = f_sin(x);
-        double second = delta(initial, final, maxiter);
-        return first*second;
+        return f_sin(computeCurrentX(k, this->initial, this->deltaX)) * deltaX;
     }
+};
+
+double RiemannIntegral::getAnalyticPrediction(){
+    return nan("");
+}
+
+double RiemannIntegral::compute(unsigned int N){
+    this->maxiter = N;
+    this->deltaX = this->delta(initial, final, maxiter);
+    return Series::compute(N);
 };
 
 
