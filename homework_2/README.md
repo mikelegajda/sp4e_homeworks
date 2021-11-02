@@ -2,9 +2,7 @@
 
 ## Tested Dependencies
 1. Python v.3.8.3
-
-### Python packages
-1. matplotlib v.3.4.2
+2. matplotlib v.3.4.2
 
 ## Instructions to compile the program
 
@@ -13,7 +11,7 @@ To compile the program perform in order the following steps:
 2. Create a `build` folder inside the main folder with `mkdir build`.
 3. Move to the `build` folder and run compilation with `cmake .. && make` 
 
-## Instruction to use the program
+## Instructions to use the program
 To run the program type `./main` followed by the additional parameters in the following order:
 1. Input series type.  `arithmetic` or `pi` or `integral`.
 2. Specify number of maximum iterations allowed.
@@ -24,6 +22,12 @@ In case you are calculating the integral, type `_`, then choose one of the possi
 Example 1: `./main pi 100 saveAllToFile csv` will calculate the pi series with maximum 100 iteration and will save the result in a csv file.
 
 Example 2: `./main integral 100 printOnlyResult _ cubic 0 1` will calculate the integral from 0 to 1 of the cubic function in 100 iteration and then will print the final result to the terminal.
+
+## Instructions to plot the result
+
+If you decided to save the result of each iteration to file by choosing `saveAllToFile`, you can call the python plotting program `PlotSeries.py` to visualize the convergence of the series compared to its analytical calculated value. To do so move to the `/src` folder and run the script as follows:\
+`python3 PlotSeries ../build/results.csv`\
+Where `../build/results.csv` is the file containing the results if you choose the `csv` format.
 
 ## Answers and comments
 
