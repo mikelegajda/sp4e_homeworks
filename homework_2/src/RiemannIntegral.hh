@@ -6,30 +6,25 @@
 
 class RiemannIntegral : public Series
 {
-    int initial, final; 
-    std::string function_type;
+    
 private:
-    /* data */
+    //Attributes
+    int initial, final, maxiter;
+    std::string function_type;
 public:
-    RiemannIntegral ();
-    ~RiemannIntegral ();
+    // Constructor
+    RiemannIntegral (int initial, int final, int maxiter, std::string function_type);
+    // Destructor
+    virtual ~RiemannIntegral ();
 
-    /*Functions*/
+    // Methods
     double f_cubic (double x);
     double f_cos (double x);
     double f_sin (double x);
     double computeTerm(unsigned int k) override;
-
-    double computeIntegral (int, int, std::string);
+    double compute(unsigned int N) override;
+    double getAnalyticPrediction() override;
+    double computeIntegral (int, int, int, std::string);
 };
-
-RiemannIntegral ::RiemannIntegral()
-{
-}
-
-RiemannIntegral ::~RiemannIntegral()
-{
-}
-
 
 #endif

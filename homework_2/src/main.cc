@@ -3,13 +3,24 @@
 #include "ComputePi.hh"
 #include "PrintSeries.hh"
 #include "WriteSeries.hh"
+#include "RiemannIntegral.hh"
 #include <fstream>
 #include <iomanip>
 #include <stdexcept>
 #include <sstream>
 #include "dumper__series.hh"
 
+
 int main(int argc, char ** argv){
+    /* Riemann Test
+    Series *ptr = NULL;
+    double ret = 0.0;
+    std::string f_type = "cos";
+    ptr = new RiemannIntegral(0, 1, 4, f_type);
+    DumperSeries *dumperPtr = NULL;
+    dumperPtr = new PrintSeries(*ptr, 100, 1);
+*/
+
 
     // using the stringstream to parse arguments
     std::string seriesType;
@@ -77,5 +88,7 @@ int main(int argc, char ** argv){
 
     delete dumperPtr;
     delete ptr;
+
+
 
 }

@@ -6,12 +6,15 @@
 class ComputePi:public Series
 {
 public:
+    // Constructor
     ComputePi();
+    // Destructor
     virtual ~ComputePi();
+
+    // Methods
     double computeTerm(unsigned int k) override;
     double compute(unsigned int N) override;
     double getAnalyticPrediction() override;
-
 };
 
 #endif
