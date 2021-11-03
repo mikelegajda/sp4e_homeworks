@@ -1,5 +1,7 @@
 # Homework 2: C++ Classes
 
+Authors: Chenyang Wang & Mikele Gajda
+
 ## Tested Dependencies
 1. Python v.3.8.3
 2. matplotlib v.3.4.2
