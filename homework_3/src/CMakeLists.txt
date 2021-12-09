@@ -68,3 +68,13 @@ if (DOXYGEN_FOUND)
     )
   add_custom_target(doc DEPENDS doxygen)
 endif(DOXYGEN_FOUND)
+
+################################################################
+# FFTW
+################################################################
+option (USE_FFTW "Use FFTW3 library" ON) 
+if (USE_FFTW)
+  find_library (FFTW3_LIBRARY fftw3 /usr/lib)
+  # message(${FFTW3_LIBRARY})
+  target_link_libraries (test_fft ${FFTW3_LIBRARY})
+endif (USE_FFTW)
