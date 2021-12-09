@@ -40,7 +40,19 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/googletest/CMakeLists.txt")
   add_executable(test_kepler test_kepler.cc)
   add_executable(test_fft test_fft.cc)
   target_link_libraries(test_kepler part gtest_main gtest pthread )
-  target_link_libraries(test_fft part gtest_main gtest pthread ${FFTW_LIBRARIES})
+
+  ################################################################
+  # FFTW
+  ################################################################
+  option (USE_FFTW "Use FFTW3 library" ON) 
+  if (USE_FFTW)
+    find_library (FFTW_LIBRARIES NAMES fftw3 libfftw3 /usr/lib)
+    message("found libarary ${FFTW_LIBRARIES}")
+    target_link_libraries(test_fft part gtest_main gtest pthread ${FFTW_LIBRARIES})
+  else()
+    target_link_libraries(test_fft part gtest_main gtest pthread)
+  endif (USE_FFTW)
+
   add_custom_target(test ./test_kepler && ./test_fft DEPENDS part test_kepler test_fft)
 else()
   message("
@@ -68,13 +80,3 @@ if (DOXYGEN_FOUND)
     )
   add_custom_target(doc DEPENDS doxygen)
 endif(DOXYGEN_FOUND)
-
-################################################################
-# FFTW
-################################################################
-option (USE_FFTW "Use FFTW3 library" ON) 
-if (USE_FFTW)
-  find_library (FFTW3_LIBRARY fftw3 /usr/lib)
-  # message(${FFTW3_LIBRARY})
-  target_link_libraries (test_fft ${FFTW3_LIBRARY})
-endif (USE_FFTW)
