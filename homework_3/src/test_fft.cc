@@ -64,3 +64,9 @@ TEST(FFT, inverse_transform) {
   }
 }
 /*****************************************************************/
+
+TEST(FFT, computeFrequencies){
+  int N = 3;
+  Matrix<std::complex<int>> res = FFT::computeFrequencies(N);
+  // TODO
+}

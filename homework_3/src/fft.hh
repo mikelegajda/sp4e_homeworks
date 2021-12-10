@@ -41,6 +41,19 @@ inline Matrix<complex> FFT::itransform(Matrix<complex>& m_in) {
 
 /* ------------------------------------------------------ */
 
-inline Matrix<std::complex<int>> FFT::computeFrequencies(int size) {}
+inline Matrix<std::complex<int>> FFT::computeFrequencies(int size) {
+  Matrix<std::complex<int>> m(size);
+
+  for (auto&& entry: index(m)){
+    int i = std::get<0>(entry);
+    int j = std::get<1>(entry);
+    auto& val = std::get<2>(entry);
+
+    int kx = (i <= size/2) ? i : i - size;
+    int ky = (j <= size/2) ? j : j - size;
+    val = std::complex<int>(kx,ky);
+  }
+  return m;
+}
 
 #endif  // FFT_HH
