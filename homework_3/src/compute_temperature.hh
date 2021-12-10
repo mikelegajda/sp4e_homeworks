@@ -11,6 +11,14 @@ class ComputeTemperature : public Compute {
 public:
   //! Penalty contact implementation
   void compute(System& system) override;
+  void setDelta(Real delta) { this->delta = delta;};
+  void setK(Real k) {this->kappa = k;};
+  void setHeadCapacity(Real heat_cap) {this->heat_cap = heat_cap;};
+
+private:
+  Real delta;
+  Real kappa = 1.0;
+  Real heat_cap = 1.0; // heat capacity
 
 };
 
