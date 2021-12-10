@@ -8,6 +8,19 @@ set(CMAKE_CXX_STANDARD 14)
 # libpart
 ################################################################
 
+################################################################
+# Look for FFTW
+################################################################
+option (USE_FFTW "Use FFTW3 library" ON)
+if (USE_FFTW) 
+  find_library (FFTW_LIBRARIES NAMES fftw3 libfftw3 /usr/lib)
+  if (FFTW_LIBRARIES)
+    message(STATUS, "found libarary fftw3")
+  else()
+    message(FATAL_ERROR "not found libarary fftw3")
+  endif(FFTW_LIBRARIES)
+endif(USE_FFTW)
+
 add_library(part
   compute_boundary.cc
   compute_verlet_integration.cc 
@@ -33,7 +46,11 @@ add_library(part
   )
 
 add_executable(particles main.cc)
-target_link_libraries(particles gtest_main gtest pthread part)
+if (FFTW_LIBRARIES)
+  target_link_libraries(particles gtest_main gtest pthread part ${FFTW_LIBRARIES})
+else()
+  target_link_libraries(particles gtest_main gtest pthread part)
+endif(FFTW_LIBRARIES)
 
 if(EXISTS "${PROJECT_SOURCE_DIR}/googletest/CMakeLists.txt")
   add_subdirectory(googletest)
@@ -41,17 +58,11 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/googletest/CMakeLists.txt")
   add_executable(test_fft test_fft.cc)
   target_link_libraries(test_kepler part gtest_main gtest pthread )
 
-  ################################################################
-  # FFTW
-  ################################################################
-  option (USE_FFTW "Use FFTW3 library" ON) 
-  if (USE_FFTW)
-    find_library (FFTW_LIBRARIES NAMES fftw3 libfftw3 /usr/lib)
-    message("found libarary ${FFTW_LIBRARIES}")
+  if (FFTW_LIBRARIES)
     target_link_libraries(test_fft part gtest_main gtest pthread ${FFTW_LIBRARIES})
   else()
     target_link_libraries(test_fft part gtest_main gtest pthread)
-  endif (USE_FFTW)
+  endif (FFTW_LIBRARIES)
 
   add_custom_target(test ./test_kepler && ./test_fft DEPENDS part test_kepler test_fft)
 else()
