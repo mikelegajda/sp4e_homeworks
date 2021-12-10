@@ -13,10 +13,10 @@ public:
   void compute(System& system) override;
   void setDelta(Real delta) { this->delta = delta;};
   void setK(Real k) {this->kappa = k;};
-  void setHeadCapacity(Real heat_cap) {this->heat_cap = heat_cap;};
+  void setHeatCapacity(Real heat_cap) {this->heat_cap = heat_cap;};
 
 private:
-  Real delta;
+  Real delta = 0.1;
   Real kappa = 1.0;
   Real heat_cap = 1.0; // heat capacity
 
