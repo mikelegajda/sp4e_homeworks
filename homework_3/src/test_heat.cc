@@ -7,7 +7,139 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
+#define TEST_TOLERANCE 1e-2
+
 /*****************************************************************/
+// Fixture class
+class MaterialPointsSystem: public ::testing::Test {
+  public:
+    UInt size = 100;
+    Real L = 2.;
+
+    void SetUp() override {
+      MaterialPointsFactory::getInstance(); 
+      // Store particles in a vector
+      std::vector<MaterialPoint> vecParticles; 
+
+      for (UInt i = 0; i < size; ++i){
+          for (UInt j = 0; j < size; ++j){
+              MaterialPoint p;
+              // Evenly spaced particles 
+              p.getPosition()[0] = -L/2 + i*L/(size-1);
+              p.getPosition()[1] = -L/2 + j*L/(size-1); 
+              // Fix z-position to 0'
+              p.getPosition()[2] = 0; 
+              vecParticles.push_back(p); 
+          }
+    }
+
+    // Add created particles to vecParticles
+    for (auto& p : vecParticles) {
+      system.addParticle(std::make_shared<MaterialPoint>(p)); 
+    }
+  }
+
+  System system;
+  UInt steps = 10;  
+  Real dt = 0.0001;
+
+  // Set variables
+  Real  rho = 1.;
+  Real  C =  1.;
+  Real  kappa = 1.;
+
+};
+
+/*****************************************************************/
+TEST_F(MaterialPointsSystem, homogeneousNoHeat){
+    for(auto& p : system){
+        MaterialPoint & pt = dynamic_cast<MaterialPoint&>(p);
+        // Initial temperature
+        pt.getTemperature() = 1.; 
+    }
+
+    auto temperature = std::make_shared<ComputeTemperature>(dt, rho, C, kappa);
+
+    for (UInt i = 0; i < steps; ++i) {
+      temperature->compute(system);
+      for(auto& p : system){
+        MaterialPoint & pt = dynamic_cast<MaterialPoint&>(p);
+        ASSERT_NEAR(pt.getTemperature(),1,TEST_TOLERANCE); 
+      }
+    }
+}
+/*****************************************************************/
+
+/*****************************************************************/
+TEST_F(MaterialPointsSystem, sinHeat){
+    for(auto& p : system){
+      MaterialPoint & pt = dynamic_cast<MaterialPoint&>(p);
+      // initial temperature at equilibrium state
+      pt.getTemperature() = sin(M_PI*pt.getPosition()[0]);  
+      pt.getHeatRate() = (M_PI)*(M_PI)*sin(M_PI*pt.getPosition()[0]);
+    }
+
+    auto temperature = std::make_shared<ComputeTemperature>(dt, rho, C, kappa);
+    
+    for (UInt i = 0; i < steps; ++i) {
+      temperature->compute(system);
+      for(auto& p : system){
+        MaterialPoint & pt = dynamic_cast<MaterialPoint&>(p);
+        Real x = pt.getPosition()[0];
+        ASSERT_NEAR(pt.getTemperature(),sin(x*M_PI),TEST_TOLERANCE);
+      }
+    }
+}
+/*****************************************************************/
+
+/*****************************************************************/
+TEST_F(MaterialPointsSystem, stepHeat){   
+    for(auto& p : system){
+        MaterialPoint & pt = dynamic_cast<MaterialPoint&>(p);
+      Vector postion_xyz = pt.getPosition();
+    
+      // equilibrium temperature (should hold throughout)
+      if (postion_xyz[0] <= -0.5)
+        pt.getTemperature()=-postion_xyz[0]-1;
+      else if ((postion_xyz[0] > -0.5) && (postion_xyz[0] <= 0.5))
+        pt.getTemperature()=postion_xyz[0];
+      else 
+        pt.getTemperature()=-postion_xyz[0]+1;
+
+      if (fabs(postion_xyz[0] - 0.5) < L/(2*(size-1)))
+        pt.getHeatRate() = 1.;
+      else if (fabs(postion_xyz[0] + 0.5) < L/(2*(size-1))) 
+        pt.getHeatRate() = -1.;
+      else
+        pt.getHeatRate() = 0.;
+    }
+
+    auto temperature = std::make_shared<ComputeTemperature>(dt, rho, C, kappa);
+    
+    // test
+    for (UInt i = 0; i < steps; ++i) {
+      temperature->compute(system);
+      for(auto& p : system){
+        MaterialPoint & pt = dynamic_cast<MaterialPoint&>(p);
+        Real x = pt.getPosition()[0];
+        if (x <= -0.5) {
+          ASSERT_NEAR(pt.getTemperature(),-x-1,TEST_TOLERANCE);
+          }
+        else if ((x> -0.5) && (x < 0.5))
+          ASSERT_NEAR(pt.getTemperature(),x,TEST_TOLERANCE);
+        else 
+          ASSERT_NEAR(pt.getTemperature(),-x+1,TEST_TOLERANCE);
+      }
+    } 
+}
+/*****************************************************************/
+
+
+
+
+/*=================================================================*/
+/*****************************OLD************************************
+
 // Fixture class
 class MaterialPointsSystem : public ::testing::Test {
     protected:
@@ -47,7 +179,7 @@ class MaterialPointsSystem : public ::testing::Test {
     std::shared_ptr<ComputeTemperature> temperature;
 };
 
-/*****************************************************************/
+/*****************************************************************
 TEST_F(MaterialPointsSystem, homogeneousNoHeat) {
     // default system is homogeneous
 
@@ -61,7 +193,7 @@ TEST_F(MaterialPointsSystem, homogeneousNoHeat) {
         }
     }
 }
-/*****************************************************************/
+/*****************************************************************
 
 TEST_F(MaterialPointsSystem, sinHeat) {
     // initial system is in homogeneous temperature
@@ -95,7 +227,7 @@ TEST_F(MaterialPointsSystem, sinHeat) {
     }
 }
 
-/*****************************************************************/
+/*****************************************************************
 TEST_F(MaterialPointsSystem, stepHeat) {
     // initial system is in homogeneous temperature
 
@@ -138,7 +270,7 @@ TEST_F(MaterialPointsSystem, stepHeat) {
     }
 }
 
-/*****************************************************************/
+/*****************************************************************
 TEST_F(MaterialPointsSystem, radialHeat) {
     // initial system is in homogeneous temperature
 
@@ -165,3 +297,4 @@ TEST_F(MaterialPointsSystem, radialHeat) {
         temperature->compute(system);
     }
 }
+*****************************OLD************************************/
