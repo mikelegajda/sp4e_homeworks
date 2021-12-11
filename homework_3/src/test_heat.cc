@@ -63,6 +63,38 @@ TEST_F(MaterialPointsSystem, homogeneousNoHeat) {
 }
 /*****************************************************************/
 
+TEST_F(MaterialPointsSystem, sinHeat) {
+    // initial system is in homogeneous temperature
+
+    // set sin heat flux
+    Real L = 1;
+    for (UInt j = 0; j < size; j++){
+        for (UInt i = 0; i < size; i++){
+            MaterialPoint& p = dynamic_cast<MaterialPoint&>(system.getParticle(j*size+i));
+            p.getHeatRate() = pow(2.0*M_PI/L, 2) * sin(2.0*M_PI*p.getPosition()[0]/L);
+        }
+    }
+
+    temperature->setDelta(dt);
+    temperature->setHeatCapacity(1.0);
+    temperature->setK(1.0);
+
+    // run 1000 iterations
+    for (int i = 0; i < 1000; ++i){
+        temperature->compute(system);
+    }
+
+
+    // check temperature when reach equilibrium
+    for (UInt j = 0; j < size; j++){
+        for (UInt i = 0; i < size; i++){
+            MaterialPoint& p = dynamic_cast<MaterialPoint&>(system.getParticle(j*size+i));
+            ASSERT_NEAR(p.getTemperature(), sin(2.0 * M_PI * p.getPosition()[0] / L), 1e-10);
+            // std::cout << p << std::endl;
+        }
+    }
+}
+
 /*****************************************************************/
 TEST_F(MaterialPointsSystem, stepHeat) {
     // initial system is in homogeneous temperature
@@ -103,5 +135,33 @@ TEST_F(MaterialPointsSystem, stepHeat) {
                 ASSERT_NEAR(p.getTemperature(), + 1.0 - p.getPosition()[0], 1e-10);
             }
         }
+    }
+}
+
+/*****************************************************************/
+TEST_F(MaterialPointsSystem, radialHeat) {
+    // initial system is in homogeneous temperature
+
+    // set radial heat flux
+    Real R = 0.5;
+    for (UInt j = 0; j < size; j++){
+        for (UInt i = 0; i < size; i++){
+            MaterialPoint& p = dynamic_cast<MaterialPoint&>(system.getParticle(j*size+i));
+            Real x = p.getPosition()[0];
+            Real y = p.getPosition()[1];
+            if ((pow(x,2) + pow(y,2)) < R){
+                p.getHeatRate() = 1.0;
+            }else{
+                p.getHeatRate() = 0.0;
+            }
+        }
+    }
+
+    temperature->setDelta(dt);
+    temperature->setHeatCapacity(1.0);
+    temperature->setK(1.0);
+    // run 1000 iterations
+    for (int i = 0; i < 1000; ++i){
+        temperature->compute(system);
     }
 }
