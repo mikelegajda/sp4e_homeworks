@@ -66,7 +66,7 @@ To produce dumps observable with Paraview, the user should reproduce step by ste
     ```
     ./particles 10000 100 ../input.csv material_point .31
     ```
-4. To visualize with Paraview: launch the software and move to `dumps/` folder location. Open the dataset with the csv reader defining `no header` and ` ` as delimiter.
+4. To visualize with Paraview: launch the software and move to `dumps/` folder location where the output of the execution has been saved in form of .csv files. Open the dataset with the csv reader defining `no header` and `[space]` as delimiter.
 Afterwards, go to Filters/Alphabetical/Table To Points. Columns 0, 1, 2 are the coordinates X, Y, Z: set them as mentioned. Next, the user can choose column13 (temperature) and column14 (heat) with colors and then the animation can be viewed.
 
 

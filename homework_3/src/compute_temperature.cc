@@ -47,7 +47,7 @@ void ComputeTemperature::compute(System& system) {
             j++;
         }
     }
-    //Find the lenght of the system in the same units
+    // Find the lenght of the system
     Real Lx = max_x - min_x;
     Real Ly = max_y - min_y;
 
