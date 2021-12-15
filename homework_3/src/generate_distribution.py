@@ -40,7 +40,7 @@ def main():
     # X Y Z Vel_x Vel_y Vel_z Force_x Force_y Force_z Mass Temp Heat
     # only X, Y, and Heat are !=0
     file_data = np.column_stack((x, y, z, z, z, z, z, z, z, z, z, h))
-    np.savetxt(filename, file_data, delimiter=",")
+    np.savetxt(filename, file_data, delimiter=" ")
 
 # TODO: How t handle boundary as asked in 4.5
 
