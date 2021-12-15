@@ -14,10 +14,10 @@ public:
 
   void setDelta(Real delta);
 private:
-  Real delta;       /* integration time step */
-  Real rho;      /* mass density */
-  Real heat_cap;        /* specific heat capacity */
-  Real kappa;    /* heat conductivity */
+  Real delta = 0.001;       /* integration time step */
+  Real rho = 1.0;      /* mass density */
+  Real heat_cap = 1.0;        /* specific heat capacity */
+  Real kappa = 1.0;    /* heat conductivity */
 };
 
 /* -------------------------------------------------------------------------- */

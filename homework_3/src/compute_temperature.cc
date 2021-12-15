@@ -128,8 +128,8 @@ void ComputeTemperature::compute(System& system) {
         int j = std::get<1>(entry);
         auto& val = std::get<2>(entry);
         
-        Real q_x = (2*M_PI/Lx)*q_freq(i,j).real();
-        Real q_y = (2*M_PI/Ly)*q_freq(i,j).imag();
+        Real q_x = (2*M_PI/Lx)*q_freq(i,j).real() / N;
+        Real q_y = (2*M_PI/Ly)*q_freq(i,j).imag() / N;
 
         val = (hvh(i,j) - kappa * thetah(i,j)  * (q_x * q_x + q_y * q_y)) / (rho * heat_cap);
         
