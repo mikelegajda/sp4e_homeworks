@@ -5,6 +5,18 @@ Authors: Chenyang Wang & Mikele Gajda
 ## Tested Dependencies
 1. Python v.3.8.3
 
+## Prerequisites
+- To include the FFTW package and link it to the executable, the user should make sure that the relative option in the `CMakeLists.txt` has been set to: `ON`.
+
+- The GoogleTest package is also necessary and should be included. This can be done by the following command:
+```
+git submodule update --init
+
+```
+After compilation the following tests can be run:
+- `./test_fft`
+- `./test_heat`
+- `./test_kepler`
 ## How to build
 ```
 1. cd {PROJECT_FOLDER}/homework_3
@@ -49,7 +61,10 @@ To produce dumps observable with Paraview, the user should reproduce step by ste
     cmake ..
     make
     ```
-    After this, just create a `dumps` folder.
+    After this, just create a `dumps` folder as follows inside src:
+    ```
+    cd src && mkdir dumps
+    ```
 3. Run the simulation after compilation using the `particles` executable as follows:
     ```
     ./particles nsteps dump_freq input.csv particle_type timestep
