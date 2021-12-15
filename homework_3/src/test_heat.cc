@@ -60,11 +60,17 @@ TEST_F(MaterialPointsSystem, homogeneousNoHeat){
 
     auto temperature = std::make_shared<ComputeTemperature>(dt, rho, C, kappa);
 
-    for (UInt i = 0; i < steps; ++i) {
+    for (UInt s = 0; s < steps; ++s) {
       temperature->compute(system);
-      for(auto& p : system){
-        MaterialPoint & pt = dynamic_cast<MaterialPoint&>(p);
-        ASSERT_NEAR(pt.getTemperature(),1,TEST_TOLERANCE); 
+    
+      // don't test on the boundary
+      for (UInt j = 1; j < size - 1; j++)
+      {
+          for (UInt i = 1; i < size - 1; i++)
+          {
+              MaterialPoint &pt = dynamic_cast<MaterialPoint &>(system.getParticle(j * size + i));
+              ASSERT_NEAR(pt.getTemperature(), 1, TEST_TOLERANCE);
+          }
       }
     }
 }
@@ -72,6 +78,8 @@ TEST_F(MaterialPointsSystem, homogeneousNoHeat){
 
 /*****************************************************************/
 TEST_F(MaterialPointsSystem, sinHeat){
+    // assume L = 2
+
     for(auto& p : system){
       MaterialPoint & pt = dynamic_cast<MaterialPoint&>(p);
       // initial temperature at equilibrium state
@@ -81,12 +89,18 @@ TEST_F(MaterialPointsSystem, sinHeat){
 
     auto temperature = std::make_shared<ComputeTemperature>(dt, rho, C, kappa);
     
-    for (UInt i = 0; i < steps; ++i) {
+    for (UInt s = 0; s < steps; ++s) {
       temperature->compute(system);
-      for(auto& p : system){
-        MaterialPoint & pt = dynamic_cast<MaterialPoint&>(p);
-        Real x = pt.getPosition()[0];
-        ASSERT_NEAR(pt.getTemperature(),sin(x*M_PI),TEST_TOLERANCE);
+
+      // don't test on the boundary
+      for (UInt j = 1; j < size - 1; j++)
+      {
+          for (UInt i = 1; i < size - 1; i++)
+          {   
+              MaterialPoint &pt = dynamic_cast<MaterialPoint &>(system.getParticle(j * size + i));
+              Real x = pt.getPosition()[0];
+              ASSERT_NEAR(pt.getTemperature(), sin(x * M_PI), TEST_TOLERANCE);
+          }
       }
     }
 }
@@ -117,20 +131,26 @@ TEST_F(MaterialPointsSystem, stepHeat){
     auto temperature = std::make_shared<ComputeTemperature>(dt, rho, C, kappa);
     
     // test
-    for (UInt i = 0; i < steps; ++i) {
+    for (UInt s = 0; s < steps; ++s) {
       temperature->compute(system);
-      for(auto& p : system){
-        MaterialPoint & pt = dynamic_cast<MaterialPoint&>(p);
-        Real x = pt.getPosition()[0];
-        if (x <= -0.5) {
-          ASSERT_NEAR(pt.getTemperature(),-x-1,TEST_TOLERANCE);
+      // don't test on the boundary
+      for (UInt j = 1; j < size - 1; j++)
+      {
+          for (UInt i = 1; i < size - 1; i++)
+          {
+              MaterialPoint &pt = dynamic_cast<MaterialPoint &>(system.getParticle(j * size + i));
+              Real x = pt.getPosition()[0];
+              if (x <= -0.5)
+              {
+                  ASSERT_NEAR(pt.getTemperature(), -x - 1, TEST_TOLERANCE);
+              }
+              else if ((x > -0.5) && (x < 0.5))
+                  ASSERT_NEAR(pt.getTemperature(), x, TEST_TOLERANCE);
+              else
+                  ASSERT_NEAR(pt.getTemperature(), -x + 1, TEST_TOLERANCE);
           }
-        else if ((x> -0.5) && (x < 0.5))
-          ASSERT_NEAR(pt.getTemperature(),x,TEST_TOLERANCE);
-        else 
-          ASSERT_NEAR(pt.getTemperature(),-x+1,TEST_TOLERANCE);
       }
-    } 
+    }
 }
 /*****************************************************************/
 
