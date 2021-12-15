@@ -5,6 +5,14 @@ Authors: Chenyang Wang & Mikele Gajda
 ## Tested Dependencies
 1. Python v.3.8.3
 
+## How to build
+```
+1. cd {PROJECT_FOLDER}/homework_3
+2. mkdir build && cd build 
+3. cmake .. -DUSE_FFTW=ON #follow the instruction to update git submodule
+4. make
+```
+
 ## Ex. 1
 The additional classes available for the project are here described:
 
@@ -16,9 +24,11 @@ The additional classes available for the project are here described:
 
 - **FFT:** It is a class needed to compute the 2D discrete Fourier Transformation handled in form of a complex matrix.
 
-## Ex. 1
-
+## Ex. 4
 ### Question 4.5
+In the last step of ComputeTemperature::compute() function to set the new temperature, if the particle is on the boundary, we enforce the temperature value as zero. Other, we do the normal update. 
+
+### Question 4.6
 To produce dumps observable with Paraview, the user should reproduce step by step the following procedure:
 
 1. Generate an initial particle distribution. To allow that, we developed the `generate_heat_source.py` script that takes the following parameters as input:
@@ -59,7 +69,4 @@ To produce dumps observable with Paraview, the user should reproduce step by ste
 4. To visualize with Paraview: launch the software and move to `dumps/` folder location. Open the dataset with the csv reader defining `no header` and ` ` as delimiter.
 Afterwards, go to Filters/Alphabetical/Table To Points. Columns 0, 1, 2 are the coordinates X, Y, Z: set them as mentioned. Next, the user can choose column13 (temperature) and column14 (heat) with colors and then the animation can be viewed.
 
-**TODO: Recheck**
-
-### Question 4.6
 
