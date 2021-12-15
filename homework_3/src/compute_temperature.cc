@@ -131,7 +131,7 @@ void ComputeTemperature::compute(System& system) {
         Real q_x = (2*M_PI/Lx)*q_freq(i,j).real();
         Real q_y = (2*M_PI/Ly)*q_freq(i,j).imag();
 
-        val = (hvh(i,j) - kappa * thetah(i,j)  * (q_x + q_y)) / (rho * heat_cap);
+        val = (hvh(i,j) - kappa * thetah(i,j)  * (q_x * q_x + q_y * q_y)) / (rho * heat_cap);
         
     }
 
@@ -142,7 +142,12 @@ void ComputeTemperature::compute(System& system) {
     i = 0; j = 0;
     for (auto& par : system) {
         MaterialPoint & matpt = dynamic_cast<MaterialPoint&>(par);
-        matpt.getTemperature() = std::real(theta_n(i,j) + delta*dtheta_over_dt(i,j));
+        // enfore boundary condition
+        if (i == 0 || j == 0 || i == N-1 || j == N-1){
+            matpt.getTemperature() = 0;
+        }else{
+            matpt.getTemperature() = std::real(theta_n(i,j) + delta*dtheta_over_dt(i,j));
+        }
         i++;
         if (i >= N){
             i = 0;
