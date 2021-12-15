@@ -21,6 +21,7 @@ class MaterialPointsSystem: public ::testing::Test {
       // Store particles in a vector
       std::vector<MaterialPoint> vecParticles; 
 
+      // Populating vector with particles  
       for (UInt i = 0; i < size; ++i){
           for (UInt j = 0; j < size; ++j){
               MaterialPoint p;
@@ -112,7 +113,7 @@ TEST_F(MaterialPointsSystem, stepHeat){
         MaterialPoint & pt = dynamic_cast<MaterialPoint&>(p);
       Vector postion_xyz = pt.getPosition();
     
-      // equilibrium temperature (should hold throughout)
+      // Temperature at equilibrium
       if (postion_xyz[0] <= -0.5)
         pt.getTemperature()=-postion_xyz[0]-1;
       else if ((postion_xyz[0] > -0.5) && (postion_xyz[0] <= 0.5))
@@ -130,7 +131,7 @@ TEST_F(MaterialPointsSystem, stepHeat){
 
     auto temperature = std::make_shared<ComputeTemperature>(dt, rho, C, kappa);
     
-    // test
+    // Temperature test
     for (UInt s = 0; s < steps; ++s) {
       temperature->compute(system);
       // don't test on the boundary
@@ -153,168 +154,3 @@ TEST_F(MaterialPointsSystem, stepHeat){
     }
 }
 /*****************************************************************/
-
-
-
-
-/*=================================================================*/
-/*****************************OLD************************************
-
-// Fixture class
-class MaterialPointsSystem : public ::testing::Test {
-    protected:
-    void SetUp() override {
-        size = 100;
-        dt = 0.1;
-        temperature = std::make_shared<ComputeTemperature>();
-
-        // Initialize the material points
-        MaterialPointsFactory::getInstance();
-        std::vector<MaterialPoint> mPoints;
-
-        Real dx = 2.0 / (size -1);
-        Real dy = 2.0 / (size -1);
-        for (UInt j = 0; j < size; j++){
-            for (UInt i = 0; i < size; i++){
-                MaterialPoint p;
-                p.getTemperature() = 0.0;
-                p.getMass() = 1.; // mass density 
-                p.getHeatRate() = 0.0;
-                p.getPosition()[0] = -1.0 + j * dx; // x coordinate
-                p.getPosition()[1] = -1.0 + i * dy; // y coordinate
-                mPoints.push_back(p);
-            }
-        }
-
-        // add to system
-        for (auto& p: mPoints){
-            system.addParticle(std::make_shared<MaterialPoint>(p));
-
-        }
-  }
-
-    System system;
-    UInt size;
-    double dt;
-    std::shared_ptr<ComputeTemperature> temperature;
-};
-
-/*****************************************************************
-TEST_F(MaterialPointsSystem, homogeneousNoHeat) {
-    // default system is homogeneous
-
-    temperature->setDelta(dt);
-    temperature->setHeatCapacity(1);
-    // run 1000 iterations
-    for (int i = 0; i < 1000; ++i){
-        temperature->compute(system);
-        for (auto &p: system){
-            ASSERT_NEAR(static_cast<MaterialPoint&>(p).getTemperature(), 0.0, 1e-10);
-        }
-    }
-}
-/*****************************************************************
-
-TEST_F(MaterialPointsSystem, sinHeat) {
-    // initial system is in homogeneous temperature
-
-    // set sin heat flux
-    Real L = 1;
-    for (UInt j = 0; j < size; j++){
-        for (UInt i = 0; i < size; i++){
-            MaterialPoint& p = dynamic_cast<MaterialPoint&>(system.getParticle(j*size+i));
-            p.getHeatRate() = pow(2.0*M_PI/L, 2) * sin(2.0*M_PI*p.getPosition()[0]/L);
-        }
-    }
-
-    temperature->setDelta(dt);
-    temperature->setHeatCapacity(1.0);
-    temperature->setK(1.0);
-
-    // run 1000 iterations
-    for (int i = 0; i < 1000; ++i){
-        temperature->compute(system);
-    }
-
-
-    // check temperature when reach equilibrium
-    for (UInt j = 0; j < size; j++){
-        for (UInt i = 0; i < size; i++){
-            MaterialPoint& p = dynamic_cast<MaterialPoint&>(system.getParticle(j*size+i));
-            ASSERT_NEAR(p.getTemperature(), sin(2.0 * M_PI * p.getPosition()[0] / L), 1e-10);
-            // std::cout << p << std::endl;
-        }
-    }
-}
-
-/*****************************************************************
-TEST_F(MaterialPointsSystem, stepHeat) {
-    // initial system is in homogeneous temperature
-
-    // set step heat flux
-    for (UInt j = 0; j < size; j++){
-        for (UInt i = 0; i < size; i++){
-            MaterialPoint& p = dynamic_cast<MaterialPoint&>(system.getParticle(j*size+i));
-            if (j == size/4){
-                p.getHeatRate() = -1.0;
-            }else if (j == 3 * size / 4){
-                p.getHeatRate() = 1.0;
-            }else{
-                p.getHeatRate() = 0.0;
-            }
-        }
-    }
-
-    temperature->setDelta(dt);
-    temperature->setHeatCapacity(1.0);
-    temperature->setK(1.0);
-    // run 1000 iterations
-    for (int i = 0; i < 1000; ++i){
-        temperature->compute(system);
-    }
-
-
-    // check temperature when reach equilibrium
-    // TODO: temperature seems to be nan
-    for (UInt j = 10; j < size; j++){
-        for (UInt i = 10; i < size; i++){
-            MaterialPoint& p = dynamic_cast<MaterialPoint&>(system.getParticle(j*size+i));
-            if (j <= size/4){
-                ASSERT_NEAR(p.getTemperature(), -1.0 - p.getPosition()[0], 1e-10);
-            }else if (j > size / 4 && j <= 3 * size/4){
-                ASSERT_NEAR(p.getTemperature(), p.getPosition()[0], 1e-10);
-            }else{
-                ASSERT_NEAR(p.getTemperature(), + 1.0 - p.getPosition()[0], 1e-10);
-            }
-        }
-    }
-}
-
-/*****************************************************************
-TEST_F(MaterialPointsSystem, radialHeat) {
-    // initial system is in homogeneous temperature
-
-    // set radial heat flux
-    Real R = 0.5;
-    for (UInt j = 0; j < size; j++){
-        for (UInt i = 0; i < size; i++){
-            MaterialPoint& p = dynamic_cast<MaterialPoint&>(system.getParticle(j*size+i));
-            Real x = p.getPosition()[0];
-            Real y = p.getPosition()[1];
-            if ((pow(x,2) + pow(y,2)) < R){
-                p.getHeatRate() = 1.0;
-            }else{
-                p.getHeatRate() = 0.0;
-            }
-        }
-    }
-
-    temperature->setDelta(dt);
-    temperature->setHeatCapacity(1.0);
-    temperature->setK(1.0);
-    // run 1000 iterations
-    for (int i = 0; i < 1000; ++i){
-        temperature->compute(system);
-    }
-}
-*****************************OLD************************************/
