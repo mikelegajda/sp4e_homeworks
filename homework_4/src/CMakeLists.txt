@@ -99,7 +99,8 @@ endif(DOXYGEN_FOUND)
 option (USE_PYTHON "Use pybind library" OFF) 
 
 if (USE_PYTHON)
-add_subdirectory(pybind11)
+find_package(pybind11 REQUIRED)
+# add_subdirectory(pybind11)
 
 add_library(pypart MODULE pypart.cc)
 target_link_libraries(pypart PRIVATE pybind11::module part)
