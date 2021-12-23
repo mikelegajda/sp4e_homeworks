@@ -26,6 +26,9 @@ public:
   //! Get singleton instance
   static ParticlesFactoryInterface& getInstance();
 
+  //! Get system
+  SystemEvolution& getSystemEvolution(){return *system_evolution;};
+
   // Members
 protected:
   std::vector<Particle*> list_particles;
