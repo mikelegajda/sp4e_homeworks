@@ -18,50 +18,58 @@ PYBIND11_MODULE(pypart, m) {
   // wrap the class
   py::class_<ParticlesFactoryInterface>(m, "ParticlesFactoryInterface")
       // .def(py::init()) // no python constructor
-      .def("getInstance",
-           &ParticlesFactoryInterface::getInstance)  // getInstance method
-      .def("createSimulation",
-           [](const std::string& fname, Real timestep,
-              py::function createComputes) {
-             createComputes(ParticlesFactoryInterface::getInstance(), timestep);
-             ParticlesFactoryInterface::getInstance().createSimulation(
-                 fname, timestep);
-           })
-      .def_property_readonly(
-          "system_evolution",
-          &ParticlesFactoryInterface::getSystemEvolution);  // createSimulation
-                                                            // method
+      .def("getInstance", &ParticlesFactoryInterface::getInstance,
+           py::return_value_policy::reference)  // getInstance method, cannot
+                                                // copy singleton
+    //   .def("createSimulation",
+    //        [](ParticlesFactoryInterface& self, const std::string& fname,
+    //           Real timestep, py::function createComputes) {
+    //          auto ret = &self.createSimulation(fname, timestep);
+    //          createComputes(self, timestep);
+    //          return ret;
+    //        })
+      .def_property_readonly("system_evolution",
+                             &ParticlesFactoryInterface::getSystemEvolution);
 
   py::class_<MaterialPointsFactory, ParticlesFactoryInterface>(
       m, "MaterialPointsFactory")
       // .def(py::init()) // no python constructor
-      .def("getInstance",
-           &MaterialPointsFactory::getInstance)  // getInstance method
-      .def("createSimulation", [](const std::string& fname, Real timestep,
-                                  py::function createComputes) {
-        createComputes(MaterialPointsFactory::getInstance(), timestep);
-        MaterialPointsFactory::getInstance().createSimulation(fname, timestep);
-      });  // createSimulation method
+      .def("getInstance", &MaterialPointsFactory::getInstance,
+           py::return_value_policy::reference)  // getInstance method
+      .def("createSimulation",
+           [](MaterialPointsFactory& self, const std::string& fname,
+              Real timestep, py::function createComputes) {
+             // have to call this method first to instantiate system_evolution
+             auto ret = &self.createSimulation(fname, timestep); 
+
+             createComputes(self, timestep);
+             return ret;
+           });  // createSimulation method
 
   py::class_<PlanetsFactory, ParticlesFactoryInterface>(m, "PlanetsFactory")
       // .def(py::init()) // no python constructor
-      .def("getInstance", &PlanetsFactory::getInstance)  // getInstance method
-      .def("createSimulation", [](const std::string& fname, Real timestep,
-                                  py::function createComputes) {
-        createComputes(PlanetsFactory::getInstance(), timestep);
-        PlanetsFactory::getInstance().createSimulation(fname, timestep);
-      });  // createSimulation method
+      .def("getInstance", &PlanetsFactory::getInstance,
+           py::return_value_policy::reference)  // getInstance method
+      .def("createSimulation",
+           [](PlanetsFactory& self, const std::string& fname, Real timestep,
+              py::function createComputes) {
+             auto ret = &self.createSimulation(fname, timestep);
+             createComputes(self, timestep);
+             return ret;
+           });  // createSimulation method
 
   py::class_<PingPongBallsFactory, ParticlesFactoryInterface>(
       m, "PingPongBallsFactory")
       // .def(py::init()) // no python constructor
-      .def("getInstance",
-           &PingPongBallsFactory::getInstance)  // getInstance method
-      .def("createSimulation", [](const std::string& fname, Real timestep,
-                                  py::function createComputes) {
-        createComputes(PingPongBallsFactory::getInstance(), timestep);
-        PingPongBallsFactory::getInstance().createSimulation(fname, timestep);
-      });  // createSimulation method
+      .def("getInstance", &PingPongBallsFactory::getInstance,
+           py::return_value_policy::reference)  // getInstance method
+      .def("createSimulation",
+           [](PingPongBallsFactory& self, const std::string& fname,
+              Real timestep, py::function createComputes) {
+             auto ret = &self.createSimulation(fname, timestep);
+             createComputes(self, timestep);
+             return ret;
+           });  // createSimulation method
 
   // binding for CsvWriter class
   py::class_<CsvWriter>(m, "CsvWriter")
@@ -69,18 +77,24 @@ PYBIND11_MODULE(pypart, m) {
       .def("write", &CsvWriter::write);
 
   // binding for Compute class
-  py::class_<Compute>(m, "Compute");
+  py::class_<Compute,
+             std::shared_ptr<
+                 Compute> /* holder type, default is std::unique_ptr<Type>*/>(
+      m, "Compute");
 
   // binding for ComputeInteraction class
-  py::class_<ComputeInteraction, Compute>(m, "ComputeInteraction");
+  py::class_<ComputeInteraction, Compute, std::shared_ptr<ComputeInteraction>>(
+      m, "ComputeInteraction");
 
   // binding for ComputeGravity class
-  py::class_<ComputeGravity, Compute>(m, "ComputeGravity")
+  py::class_<ComputeGravity, ComputeInteraction,
+             std::shared_ptr<ComputeGravity>>(m, "ComputeGravity")
       .def(py::init())
       .def("setG", &ComputeGravity::setG);
 
   // binding for ComputeTemperature class
-  py::class_<ComputeTemperature, Compute>(m, "ComputeTemperature")
+  py::class_<ComputeTemperature, Compute, std::shared_ptr<ComputeTemperature>>(
+      m, "ComputeTemperature")
       .def(py::init<>())
       .def_property("conductivity", &ComputeTemperature::getConductivity,
                     [](ComputeTemperature& self, Real newConduct) {
@@ -104,8 +118,10 @@ PYBIND11_MODULE(pypart, m) {
                     });
 
   // binding for ComputeVerletIntergration class
-  py::class_<ComputeVerletIntegration, Compute>(m, "ComputeVerletIntegration")
-      .def(py::init<Real>()) // TODO
+  py::class_<ComputeVerletIntegration, Compute,
+             std::shared_ptr<ComputeVerletIntegration>>(
+      m, "ComputeVerletIntegration")
+      .def(py::init<Real>())
       .def("addInteraction", &ComputeVerletIntegration::addInteraction);
 
   // binding for SystemEvolution
@@ -115,4 +131,10 @@ PYBIND11_MODULE(pypart, m) {
       .def("setNSteps", &SystemEvolution::setNSteps)
       .def("setDumpFreq", &SystemEvolution::setDumpFreq)
       .def("addCompute", &SystemEvolution::addCompute);
+
+  // binding for System
+  py::class_<System>(m, "System");
+
+
+
 }
