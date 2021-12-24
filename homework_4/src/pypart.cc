@@ -56,7 +56,8 @@ PYBIND11_MODULE(pypart, m) {
              auto ret = &self.createSimulation(fname, timestep);
              createComputes(self, timestep);
              return ret;
-           });  // createSimulation method
+           });  // createSimulation method 
+           // TODO: use template function
 
   py::class_<PingPongBallsFactory, ParticlesFactoryInterface>(
       m, "PingPongBallsFactory")
@@ -100,7 +101,7 @@ PYBIND11_MODULE(pypart, m) {
                     [](ComputeTemperature& self, Real newConduct) {
                       self.getConductivity() = newConduct;
                     })
-      // .def_readwrite("conductivity", &ComputeTemperature::getConductivity)
+      // .def_readwrite("conductivity", &ComputeTemperature::getConductivity) // this way doesn't work
       .def_property(
           "L", &ComputeTemperature::getL,
           [](ComputeTemperature& self, Real newL) { self.getL() = newL; })
