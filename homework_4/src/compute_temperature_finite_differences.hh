@@ -7,15 +7,15 @@
 
 class ComputeTemperatureFiniteDifferences : public Compute {
 public:
-  ComputeTemperatureFiniteDifferences(Real dt) 
-  {this->dt = dt;}
+  ComputeTemperatureFiniteDifferences(Real deltaT) 
+  {this->deltaT = deltaT;}
   void compute(System& system) override;
   void assembleLinearOperator(System& system);
   void assembleRightHandSide(System& system);
 
   Real& getDensity() { return density; };
   Real& getL() { return L; };
-  Real& getDeltaT() { return dt; };
+  Real& getDeltaT() { return deltaT; };
   Real& getConductivity() { return conductivity; };
   Real& getCapacity() { return capacity; };
 
