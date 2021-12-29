@@ -7,11 +7,30 @@
 
 class ComputeTemperatureFiniteDifferences : public Compute {
 public:
-  ComputeTemperatureFiniteDifferences(Real dt) {}
-
+  ComputeTemperatureFiniteDifferences(Real dt) 
+  {this->dt = dt;}
   void compute(System& system) override;
   void assembleLinearOperator(System& system);
   void assembleRightHandSide(System& system);
+
+  Real& getDensity() { return density; };
+  Real& getL() { return L; };
+  Real& getDeltaT() { return dt; };
+  Real& getConductivity() { return conductivity; };
+  Real& getCapacity() { return capacity; };
+
+private:
+  Real density;
+  Real L;
+  Real deltaT;
+  Real conductivity;
+  Real capacity;
+  Eigen::SparseMatrix<double> A;
+  Eigen::VectorXd rhs;
+  Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
 };
+
+
+
 
 #endif  // COMPUTE_TEMPERATURE_FINITE_DIFFERENCES_HH
