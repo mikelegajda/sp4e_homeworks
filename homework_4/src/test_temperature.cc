@@ -59,6 +59,8 @@ TEST_F(MaterialPointsSystem, homogeneousNoHeat){
         pt.getTemperature() = 1.; 
     }
 
+    //TODO: Change constructor in compute_temperature.hh (see Homework3)
+
     auto temperature = std::make_shared<ComputeTemperature>(dt, rho, C, kappa);
 
     for (UInt s = 0; s < steps; ++s) {
