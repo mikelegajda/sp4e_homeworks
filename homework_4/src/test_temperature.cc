@@ -28,7 +28,7 @@ class TemperatureTest : public ::testing::Test {
                 // Evenly spaced particles 
                 p.getPosition()[0] = -L/2 + i*L/(size-1);
                 p.getPosition()[1] = -L/2 + j*L/(size-1); 
-                // Fix z-position to 0'
+                // Fix z-position to 0
                 p.getPosition()[2] = 0; 
                 p.getTemperature() = T;
                 p.getHeatSource() = 0;
@@ -61,8 +61,8 @@ class TemperatureTest : public ::testing::Test {
 TEST_F(TemperatureTest, temperature_equilibrium) {
 
   //Number of allowed iterations
-  UInt steps = 10000;
-  dt = 0.0001;
+  UInt steps = 20000;
+  dt = 0.001;
 
   ComputeTemperatureFiniteDifferences temperature = ComputeTemperatureFiniteDifferences(dt);
 
@@ -78,7 +78,7 @@ TEST_F(TemperatureTest, temperature_equilibrium) {
     temperature.assembleLinearOperator(system);
     temperature.compute(system);
   }
-  
+
   for (auto& part : system) {
     auto& p = static_cast<MaterialPoint&>(part);
     ASSERT_NEAR(p.getTemperature(), 0, TEST_TOLERANCE);

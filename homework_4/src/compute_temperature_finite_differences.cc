@@ -15,6 +15,7 @@ void ComputeTemperatureFiniteDifferences::compute(System& system) {
   solver.analyzePattern(A); 
   solver.factorize(A);
   auto next_theta = solver.solve(b); 
+
     // LU factorization
     auto i = 0;
     for (auto& part : system) {
@@ -26,7 +27,7 @@ void ComputeTemperatureFiniteDifferences::compute(System& system) {
 void ComputeTemperatureFiniteDifferences::assembleLinearOperator(
     System& system) {
 
-    // number of particles
+    // Number of particles
     UInt dimension = system.getNbParticles();
     // See equation (3) in problem definition -> rhs
     Real linear_factor = dt * conductivity / (capacity * density);
@@ -34,19 +35,23 @@ void ComputeTemperatureFiniteDifferences::assembleLinearOperator(
     // Resizing sparse_matrix
     sparse_matrix.resize(dimension, dimension);
 
-    // Defining n and calcualting a beforehand -> will be used as division factor as seen in eq. (1)
-    UInt n = std::sqrt(dimension);
-    Real a = L/(n-1);
+    // Defining N and calcualting a beforehand -> will be used as division factor as seen in eq. (1)
+    UInt N = std::sqrt(dimension);
+    Real a = L/(N-1);
 
     // i is the index of a particle
     for(UInt i = 0; i < dimension; ++i){
 
 
         // Checking boundaries
-        if((i % n) != 0)
+        if((i % N) != 0)
             sparse_matrix.insert(i, i-1) = 1;
-        if(i > n-1)
-            sparse_matrix.insert(i, i-n) = 1;
+        if((i+1) % N != 0)
+            sparse_matrix.insert(i, i+1) = 1;
+        if(i > N-1)
+            sparse_matrix.insert(i, i-N) = 1;
+        if(i < N*(N-1))
+            sparse_matrix.insert(i, i+N) = 1;
 
         // (i,i) is the index for the particle at each loop iteration
         sparse_matrix.insert(i, i) = -4;
@@ -57,6 +62,9 @@ void ComputeTemperatureFiniteDifferences::assembleLinearOperator(
 
     Eigen::SparseMatrix<Real> sparse_ones_matrix(dimension, dimension);
 
+    sparse_ones_matrix = Eigen::VectorXd::Constant(dimension, 1).asDiagonal();
+    
+    sparse_matrix = sparse_ones_matrix - sparse_matrix;
 }
 
 void ComputeTemperatureFiniteDifferences::assembleRightHandSide(
@@ -78,7 +86,7 @@ void ComputeTemperatureFiniteDifferences::assembleRightHandSide(
                    return static_cast<MaterialPoint&>(part).getHeatSource();
                  });
 
-  const auto factor_right = dt / (density * capacity);
+  const auto factor_right = this->dt / (this->density * this->capacity);
 
   Eigen::Map<Eigen::VectorXd> temp_vector(
       reinterpret_cast<double*>(temperature.data()), dimension);
@@ -86,7 +94,7 @@ void ComputeTemperatureFiniteDifferences::assembleRightHandSide(
   Eigen::Map<Eigen::VectorXd> heat_source_vector(
       reinterpret_cast<double*>(heat_source.data()), dimension);
 
-  auto assembled_vector = heat_source_vector + temp_vector;
+  auto assembled_vector = factor_right * heat_source_vector + temp_vector;
 
-  sparse_vector = assembled_vector;
+  this->sparse_vector = assembled_vector;
 }
