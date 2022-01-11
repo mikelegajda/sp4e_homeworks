@@ -7,21 +7,23 @@ void ComputeTemperatureFiniteDifferences::compute(System& system) {
   assembleLinearOperator(system);
   assembleRightHandSide(system);
 
-  Eigen::SparseMatrix<double> &A = sparse_matrix;
-  Eigen::VectorXd &b = sparse_vector;
+  Eigen::SparseMatrix<double>& A = sparse_matrix;
+  Eigen::VectorXd& b = sparse_vector;
 
-  Eigen::SparseLU<Eigen::SparseMatrix<double> > solver;
-  A.makeCompressed(); 
-  solver.analyzePattern(A); 
+  Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
+  A.makeCompressed();
+  // compute the ordering permutation vector from the structural pattern of A
+  solver.analyzePattern(A);
+  // compute the numerical factorization
   solver.factorize(A);
-  auto next_theta = solver.solve(b); 
+  auto next_theta = solver.solve(b);
 
-    // LU factorization
-    auto i = 0;
-    for (auto& part : system) {
-        static_cast<MaterialPoint&>(part).getTemperature() = next_theta(i);
-        i++;
-    }
+  // update temperature
+  auto i = 0;
+  for (auto& part : system) {
+    static_cast<MaterialPoint&>(part).getTemperature() = next_theta(i);
+    i++;
+  }
 }
 
 void ComputeTemperatureFiniteDifferences::assembleLinearOperator(
