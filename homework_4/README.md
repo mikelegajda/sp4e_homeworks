@@ -1,6 +1,29 @@
-# HOMEWORK 4
+# HOMEWORK 4: Eigen and Pybind
 
-1. Test main.py
+Authors: Mikele Gajda & Chenyang Wang
+
+## Dependencies
+1. Python v.3.8.3
+
+## Quitck Start
+
+1. clone the repository and run:
+```
+git pull --recurse-submodules
+```
+2. build
+```
+1. cd {PROJECT_FOLDER}/homework_3
+2. mkdir build && cd build 
+3. cmake .. -DUSE_FFTW=ON #follow the instruction to update git submodule
+4. make
+```
+3. Run google test
+```
+cd build
+./src/test_temperature
+``` 
+4. Test main.py
 ```
 # generate input file
 cd src
@@ -20,11 +43,11 @@ python3 main.py 1000 5 m_input.csv material_point 0.01
 # Exercise Answer
 1. Ex.3 Question 2:
 
-    The createComputes callable or functor is designed to setup some simulation parameters, e.g., mass and conductivity, and customised the process of simulation by adding different compute class, e.g. ComputeGravity.
+    The createComputes callable or functor is designed to setup some simulation parameters, e.g., mass and conductivity, and customise the process of simulation by adding different compute class, e.g. ComputeGravity.
 
 2. Ex.4 Question 2:
 
-    In order to correctly manage references to Compute objects, I will create a function for each type of Compute object to return the smart shared pointer of it. Aterwards, it can be bind with python init function.
+    In order to correctly manage references to Compute objects, I will create a function for each type of Compute object to return the smart shared pointer of it. Afterwards, it can be bound with python init function.
     
     E.g.,
     ```
