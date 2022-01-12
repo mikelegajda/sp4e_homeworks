@@ -10,6 +10,17 @@ namespace py = pybind11;
 #include "ping_pong_balls_factory.hh"
 #include "planets_factory.hh"
 
+// function template for binding createSimulation method in python
+template <typename T>
+SystemEvolution* createSimulationTemplate(T& self, const std::string& fname,
+                                          Real timestep,
+                                          py::function createComputes) {
+  // have to call this method first to instantiate system_evolution
+  auto ret = &self.createSimulation(fname, timestep);
+  createComputes(self, timestep);
+  return ret;
+}
+
 PYBIND11_MODULE(pypart, m) {
 
   m.doc() = "pybind of the Particles project";
@@ -37,27 +48,16 @@ PYBIND11_MODULE(pypart, m) {
       .def("getInstance", &MaterialPointsFactory::getInstance,
            py::return_value_policy::reference)  // getInstance method
       .def("createSimulation",
-           [](MaterialPointsFactory& self, const std::string& fname,
-              Real timestep, py::function createComputes) {
-             // have to call this method first to instantiate system_evolution
-             auto ret = &self.createSimulation(fname, timestep); 
-
-             createComputes(self, timestep);
-             return ret;
-           });  // createSimulation method
+           &createSimulationTemplate<MaterialPointsFactory>);  // createSimulation
+                                                               // method
 
   py::class_<PlanetsFactory, ParticlesFactoryInterface>(m, "PlanetsFactory")
       // .def(py::init()) // no python constructor
       .def("getInstance", &PlanetsFactory::getInstance,
            py::return_value_policy::reference)  // getInstance method
       .def("createSimulation",
-           [](PlanetsFactory& self, const std::string& fname, Real timestep,
-              py::function createComputes) {
-             auto ret = &self.createSimulation(fname, timestep);
-             createComputes(self, timestep);
-             return ret;
-           });  // createSimulation method 
-           // TODO: use template function
+           &createSimulationTemplate<PlanetsFactory>);  // createSimulation
+                                                        // method
 
   py::class_<PingPongBallsFactory, ParticlesFactoryInterface>(
       m, "PingPongBallsFactory")
@@ -65,12 +65,8 @@ PYBIND11_MODULE(pypart, m) {
       .def("getInstance", &PingPongBallsFactory::getInstance,
            py::return_value_policy::reference)  // getInstance method
       .def("createSimulation",
-           [](PingPongBallsFactory& self, const std::string& fname,
-              Real timestep, py::function createComputes) {
-             auto ret = &self.createSimulation(fname, timestep);
-             createComputes(self, timestep);
-             return ret;
-           });  // createSimulation method
+           &createSimulationTemplate<PingPongBallsFactory>);  // createSimulation
+                                                              // method
 
   // binding for CsvWriter class
   py::class_<CsvWriter>(m, "CsvWriter")
@@ -135,7 +131,4 @@ PYBIND11_MODULE(pypart, m) {
 
   // binding for System
   py::class_<System>(m, "System");
-
-
-
 }
