@@ -42,8 +42,10 @@ python3 main.py 1000 5 m_input.csv material_point 0.01
 
 # Exercise Answer
 1. Ex.3 Question 2:
-
-    The createComputes callable or functor is designed to setup some simulation parameters, e.g., mass and conductivity, and customise the process of simulation by adding different compute class, e.g. ComputeGravity.
+    ```
+    evol = factory.createSimulation(filename, timestep, createComputes)
+    ```
+    The createComputes callable or functor is designed to setup some simulation parameters in Python, e.g., mass and conductivity, and customise the process of simulation by adding different compute class, e.g. ComputeGravity.
 
 2. Ex.4 Question 2:
 
