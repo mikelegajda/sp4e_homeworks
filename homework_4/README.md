@@ -13,10 +13,10 @@ git pull --recurse-submodules
 ```
 2. build
 ```
-1. cd {PROJECT_FOLDER}/homework_3
-2. mkdir build && cd build 
-3. cmake .. -DUSE_FFTW=ON #follow the instruction to update git submodule
-4. make
+cd {PROJECT_FOLDER}/homework_4
+mkdir build && cd build 
+cmake .. -DUSE_PYTHON=ON
+make
 ```
 3. Run google test
 ```
@@ -65,4 +65,3 @@ python3 main.py 1000 5 m_input.csv material_point 0.01
 ```
 sudo apt install python3-pybind11
 ```
-2. 
